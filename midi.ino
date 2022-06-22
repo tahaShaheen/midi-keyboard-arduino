@@ -122,291 +122,69 @@ void loop() {
 
   String row, column;
 
-  if ((PORTD & 0b11111100) == 0b11111000) {
-    row = "A";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
+  if (!shift_B) {
+    switch (PORTD & 0xFC) {
+      case 0xF8:
+        row = "A";
+        break;
+      case 0xF4:
+        row = "B";
+        break;
+      case 0xEC:
+        row = "C";
+        break;
+      case 0xDC:
+        row = "D";
+        break;
+      case 0xBC:
+        row = "E";
+        break;
+      case 0x7C:
+        row = "F";
+        break;
     }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
+  }
+  else {
+    switch (PORTB & 0x03) {
+      case 0x02:
+        row = "G";
+        break;
+      case 0x01:
+        row = "H";
+        break;
     }
   }
 
-  if ((PORTD & 0b11111100) == 0b11110100) {
-    row = "B";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINB & 0x3C) == 0x38) {
+    column = "1";
+    Serial.println(row + column);
   }
-
-  if ((PORTD & 0b11111100) == 0b11101100) {
-    row = "C";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINB & 0x3C) == 0x34) {
+    column = "2";
+    Serial.println(row + column);
   }
-
-  if ((PORTD & 0b11111100) == 0b11011100) {
-    row = "D";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINB & 0x3C) == 0x2C) {
+    column = "3";
+    Serial.println(row + column);
   }
-
-  if ((PORTD & 0b11111100) == 0b10111100) {
-    row = "E";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINB & 0x3C) == 0x1C) {
+    column = "4";
+    Serial.println(row + column);
   }
-
-  if ((PORTD & 0b11111100) == 0b01111100) {
-    row = "F";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINC & 0x0F) == 0x0E) {
+    column = "5";
+    Serial.println(row + column);
   }
-
-  if ((PORTB & 0b00000011) == 0b00000010) {
-    row = "G";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINC & 0x0F) == 0x0D) {
+    column = "6";
+    Serial.println(row + column);
   }
-
-  if ((PORTB & 0b00000011) == 0b00000001) {
-    row = "H";
-    if ((PINB & 0b00111100) == 0b00111000) {
-      column = "1";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00110100) {
-      column = "2";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00101100) {
-      column = "3";
-      Serial.println(row + column);
-    }
-    if ((PINB & 0b00111100) == 0b00011100) {
-      column = "4";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001110) {
-      column = "5";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001101) {
-      column = "6";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00001011) {
-      column = "7";
-      Serial.println(row + column);
-    }
-    if ((PINC & 0b00001111) == 0b00000111) {
-      column = "8";
-      Serial.println(row + column);
-    }
+  if ((PINC & 0x0F) == 0x0B) {
+    column = "7";
+    Serial.println(row + column);
+  }
+  if ((PINC & 0x0F) == 0x07) {
+    column = "8";
+    Serial.println(row + column);
   }
 }
