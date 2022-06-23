@@ -74,7 +74,8 @@ void setup() {
   pinMode(WIRE_8, INPUT_PULLUP);
 
   //  Serial.begin(9600);
-  Serial.begin(115200);
+  //  Serial.begin(115200); // hairlessMIDI baudrate
+  Serial.begin(31250); // MIDI Standard baudrate
 
   /*  FOR REFERENCE
       ===============================================================
