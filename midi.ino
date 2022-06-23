@@ -21,9 +21,24 @@
 #define WIRE_7 A2
 #define WIRE_8 A3
 
+int noteVelocity = 0x45;
+int noteCmd = 0x90; //The lower nibble is the channel
+
+
 byte PIND_shifter, PINB_shifter;
 bool shift_B; // to switch between the two OUTPUT registers
 
+//The pitches start from C2 (MIDI NUMBER 36) and go till C7 (MIDI NUMBER 96). The extra 3 are filler.
+int pitches_table [8][8] = {
+  {36, 37, 38, 39, 40, 41, 42, 43},
+  {44, 45, 46, 47, 48, 49, 50, 51},
+  {52, 53, 54, 55, 56, 57, 58, 59},
+  {60, 61, 62, 63, 64, 65, 66, 67},
+  {68, 69, 70, 71, 72, 73, 74, 75},
+  {76, 77, 78, 79, 80, 81, 82, 83},
+  {84, 85, 86, 87, 88, 89, 90, 91},
+  {92, 93, 94, 95, 96, 97, 98, 99}
+};
 
 void setup() {
 
@@ -45,7 +60,8 @@ void setup() {
   pinMode(WIRE_7, INPUT_PULLUP);
   pinMode(WIRE_8, INPUT_PULLUP);
 
-  Serial.begin(9600);
+  //  Serial.begin(9600);
+  Serial.begin(115200);
 
   /*  FOR REFERENCE
       ===============================================================
@@ -56,12 +72,10 @@ void setup() {
   */
 
   // A-H, all outputs are HIGH
-  PORTD = PIND | 0b11111100;
-  PORTD = PIND | 0b00000011;
+  PORTD = PORTD | 0b11111100;
+  PORTB = PORTB | 0b00000011;
 
   // Only WIRE_A set to LOW
-  PORTD = PORTD | 0b11111100;
-  PORTB = PORTD | 0b00000011;
   PORTD = PORTD & 0b11111011;
 
   // OUTPUT PIN shifters
@@ -91,100 +105,189 @@ void loop() {
 
     // Making all  output pins HIGH
     PORTD = PORTD | 0b11111100;
-    PORTB = PORTD | 0b00000011;
+    PORTB = PORTB | 0b00000011;
 
     // Updating PORTD, 0 moved to left
     PORTD = PORTD & PIND_shifter;
   }
   else {
-    // Shifting bit to left, making sure that the right two its are 11.
-    PINB_shifter  = PINB_shifter  << 1;
+    // Shifting bit to left, making sure that the right two bits are 11.
 
-    if (PINB_shifter == 0b11111100) PINB_shifter = 0b11111101;
+    if (PINB_shifter != 0b11111111) PINB_shifter  = ~(~PINB_shifter  << 1);
+    else PINB_shifter  = PINB_shifter  << 1;
 
     PINB_shifter  = PINB_shifter  | 0b11111100;
 
     // Making all  output pins HIGH
     PORTD = PORTD | 0b11111100;
-    PORTB = PORTD | 0b00000011;
+    PORTB = PORTB | 0b00000011;
 
     // Updating PORTB, 0 moved to left
     PORTB = PORTB & PINB_shifter;
   }
 
-  //    Serial.print("PIND_shifter: ");
-  //    Serial.println(PIND_shifter, BIN);
-  //    Serial.print("PORTD: ");
-  //    Serial.println(PORTD, BIN);
-  //      Serial.print("PORTB: ");
-  //      Serial.println(PORTB, BIN);
+  // OUTPUT DEBUG STUFF
+  // =====================
+  //  Serial.print("PIND_shifter: ");
+  //  Serial.println(PIND_shifter, BIN);
+  //  Serial.print("PINB_shifter: ");
+  //  Serial.println(PINB_shifter, BIN);
+  //  Serial.print("PORTD: ");
+  //  Serial.println(PORTD, BIN);
+  //  Serial.print("PORTB: ");
+  //  Serial.println(PORTB, BIN);
 
 
-  String row, column;
+  char row, column;
 
+  // This is switch case because only one will be activated at one time
   if (!shift_B) {
     switch (PORTD & 0xFC) {
       case 0xF8:
-        row = "A";
+        row = 'A';
         break;
       case 0xF4:
-        row = "B";
+        row = 'B';
         break;
       case 0xEC:
-        row = "C";
+        row = 'C';
         break;
       case 0xDC:
-        row = "D";
+        row = 'D';
         break;
       case 0xBC:
-        row = "E";
+        row = 'E';
         break;
       case 0x7C:
-        row = "F";
+        row = 'F';
         break;
     }
   }
   else {
     switch (PORTB & 0x03) {
       case 0x02:
-        row = "G";
+        row = 'G';
         break;
       case 0x01:
-        row = "H";
+        row = 'H';
         break;
     }
   }
 
+
+  //   INPUT DEBUG STUFF
+  //   =====================
+  //  Serial.print("PINB: ");
+  //  Serial.println(PINB, BIN);
+  //  Serial.print("PINC: ");
+  //  Serial.println(PINC, BIN);
+
+  //  delay(500);
+
+  pinMode(WIRE_1, INPUT_PULLUP);
+  pinMode(WIRE_2, INPUT_PULLUP);
+  pinMode(WIRE_3, INPUT_PULLUP);
+  pinMode(WIRE_4, INPUT_PULLUP);
+  pinMode(WIRE_5, INPUT_PULLUP);
+  pinMode(WIRE_6, INPUT_PULLUP);
+  pinMode(WIRE_7, INPUT_PULLUP);
+  pinMode(WIRE_8, INPUT_PULLUP);
+
+
+  // This is not switch case because more than one column may be activated of the same row. Switch case break would make it skip the later key presses.
   if ((PINB & 0x3C) == 0x38) {
-    column = "1";
-    Serial.println(row + column);
+    column = '1';
+    //    Serial.print("PINB & 0x3C: ");
+    //    Serial.println(PINB & 0x3C, HEX);
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINB & 0x3C) == 0x34) {
-    column = "2";
-    Serial.println(row + column);
+    column = '2';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINB & 0x3C) == 0x2C) {
-    column = "3";
-    Serial.println(row + column);
+    column = '3';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINB & 0x3C) == 0x1C) {
-    column = "4";
-    Serial.println(row + column);
+    column = '4';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINC & 0x0F) == 0x0E) {
-    column = "5";
-    Serial.println(row + column);
+    column = '5';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINC & 0x0F) == 0x0D) {
-    column = "6";
-    Serial.println(row + column);
+    column = '6';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINC & 0x0F) == 0x0B) {
-    column = "7";
-    Serial.println(row + column);
+    column = '7';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
   if ((PINC & 0x0F) == 0x07) {
-    column = "8";
-    Serial.println(row + column);
+    column = '8';
+    printRowColumn(row, column);
+    noteOn(noteCmd, noteVelocity, row, column);
   }
+
+  noteOn(noteCmd, 0x00, row, column);
+}
+
+int findPitch(char row, char column) {
+
+  int row_number;
+  switch (row) {
+    case 'A':
+      row_number = 0;
+      break;
+    case 'B':
+      row_number = 1;
+      break;
+    case 'C':
+      row_number = 2;
+      break;
+    case 'D':
+      row_number = 3;
+      break;
+    case 'E':
+      row_number = 4;
+      break;
+    case 'F':
+      row_number = 5;
+      break;
+    case 'G':
+      row_number = 6;
+      break;
+    case 'H':
+      row_number = 7;
+      break;
+  }
+
+  int column_number = (column - '0') - 1; // converting from char to int, and then subtracting 1 because my column count starts from 1
+  return (pitches_table[row_number][column_number]);
+}
+
+void noteOn(int cmd, int velocity, char row, char column) {
+
+  int pitch = findPitch(row, column);
+  //  Serial.print("pitch: ");
+  //  Serial.println(pitch);
+
+    Serial.write(cmd);//Serial.write() to send byte without formatting
+    Serial.write(pitch);
+    Serial.write(velocity);
+}
+
+
+void printRowColumn(char row, char column) {
+//  Serial.print(row);
+//  Serial.println(column);
 }
