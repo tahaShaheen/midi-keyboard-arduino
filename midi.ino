@@ -40,15 +40,15 @@ int pitches_table [8][8] = {
   {92, 93, 94, 95, 96, 97, 98, 99}
 };
 
-int key_state_table [8][8] = {
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0, 0}
+bool key_state_table [8][8] = {
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false},
+  {false, false, false, false, false, false, false, false}
 }; //array to hold our button states
 
 int iteration_for_press_consideration = 5;
@@ -213,46 +213,83 @@ void loop() {
     //    Serial.print("PINB & 0x3C: ");
     //    Serial.println(PINB & 0x3C, HEX);
     printRowColumn(row, column);
-    noteOn(row, column);
+    checkState(row, column, false);
   }
+  else {
+    column = '1';
+    checkState(row, column, true);
+  }
+
   if ((PINB & 0x3C) == 0x34) {
     column = '2';
     printRowColumn(row, column);
-    noteOn(row, column);
+    checkState(row, column, false);
   }
+  else {
+    column = '2';
+    checkState(row, column, true);
+  }
+
   if ((PINB & 0x3C) == 0x2C) {
     column = '3';
     printRowColumn(row, column);
-    noteOn(row, column);
+    checkState(row, column, false);
   }
+  else {
+    column = '3';
+    checkState(row, column, true);
+  }
+
   if ((PINB & 0x3C) == 0x1C) {
     column = '4';
     printRowColumn(row, column);
-    noteOn(row, column);
+    checkState(row, column, false);
   }
+  else {
+    column = '4';
+    checkState(row, column, true);
+  }
+
   if ((PINC & 0x0F) == 0x0E) {
     column = '5';
     printRowColumn(row, column);
-    noteOn(row, column);
+    checkState(row, column, false);
   }
+  else {
+    column = '5';
+    checkState(row, column, true);
+  }
+
   if ((PINC & 0x0F) == 0x0D) {
     column = '6';
     printRowColumn(row, column);
-    noteOn(row, column);
-
+    checkState(row, column, false);
   }
+  else {
+    column = '6';
+    checkState(row, column, true);
+  }
+
   if ((PINC & 0x0F) == 0x0B) {
     column = '7';
     printRowColumn(row, column);
-    noteOn(row, column);
-
+    checkState(row, column, false);
   }
+  else {
+    column = '7';
+    checkState(row, column, true);
+  }
+
   if ((PINC & 0x0F) == 0x07) {
     column = '8';
     printRowColumn(row, column);
-    noteOn(row, column);
+    checkState(row, column, false);
   }
-  noteOff(row, column);
+  else {
+    column = '8';
+    checkState(row, column, true);
+  }
+
 }
 
 int findPitch(char row, char column) {
@@ -302,8 +339,6 @@ void noteOn(char row, char column) {
 
 void noteOff(char row, char column) {
   int pitch = findPitch(row, column);
-  //  Serial.print("pitch: ");
-  //  Serial.println(pitch);
 
   Serial.write(noteCmd);//Serial.write() to send byte without formatting
   Serial.write(pitch);
@@ -312,6 +347,50 @@ void noteOff(char row, char column) {
 
 
 void printRowColumn(char row, char column) {
+  //    Serial.print(row);
+  //    Serial.println(column);
+}
+
+
+void checkState(char row, char column, bool released) {
+
   //  Serial.print(row);
-  //  Serial.println(column);
+  //  Serial.print(column);
+  //  Serial.print(": ");
+  //  Serial.println(key_state_table[row][column]);
+
+
+  if (released == true && key_state_table[row][column] == true) {
+    //    Update state
+    key_state_table[row][column] = false;
+
+    //    turn the note off when key released
+    noteOff(row, column);
+
+    //    Serial.print(row);
+    //    Serial.print(column);
+    //    Serial.println(" released");
+  }
+
+  //  check if key already pressed (as in its being kept pressed)
+  else if (released == false && key_state_table[row][column] == false) {
+
+    //    if key pressed for the first time, then  send note, else ignore
+    key_state_table[row][column] = true;
+    noteOn(row, column);
+
+    //    Serial.print(row);
+    //    Serial.print(column);
+    //    Serial.println(" pressed");
+  }
+
+  else if (released == false && key_state_table[row][column] == true) {
+
+    //    Ignore if still pressed
+
+    //    Serial.print(row);
+    //    Serial.print(column);
+    //    Serial.println(" still pressed");
+  }
+
 }
