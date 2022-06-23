@@ -40,6 +40,19 @@ int pitches_table [8][8] = {
   {92, 93, 94, 95, 96, 97, 98, 99}
 };
 
+int key_state_table [8][8] = {
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0},
+  {0, 0, 0, 0, 0, 0, 0, 0}
+}; //array to hold our button states
+
+int iteration_for_press_consideration = 5;
+
 void setup() {
 
   pinMode(WIRE_A, OUTPUT);
@@ -200,45 +213,46 @@ void loop() {
     //    Serial.print("PINB & 0x3C: ");
     //    Serial.println(PINB & 0x3C, HEX);
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
   }
   if ((PINB & 0x3C) == 0x34) {
     column = '2';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
   }
   if ((PINB & 0x3C) == 0x2C) {
     column = '3';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
   }
   if ((PINB & 0x3C) == 0x1C) {
     column = '4';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
   }
   if ((PINC & 0x0F) == 0x0E) {
     column = '5';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
   }
   if ((PINC & 0x0F) == 0x0D) {
     column = '6';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
+
   }
   if ((PINC & 0x0F) == 0x0B) {
     column = '7';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
+
   }
   if ((PINC & 0x0F) == 0x07) {
     column = '8';
     printRowColumn(row, column);
-    noteOn(noteCmd, noteVelocity, row, column);
+    noteOn(row, column);
   }
-
-  noteOn(noteCmd, 0x00, row, column);
+  noteOff(row, column);
 }
 
 int findPitch(char row, char column) {
@@ -275,19 +289,29 @@ int findPitch(char row, char column) {
   return (pitches_table[row_number][column_number]);
 }
 
-void noteOn(int cmd, int velocity, char row, char column) {
+void noteOn(char row, char column) {
 
   int pitch = findPitch(row, column);
   //  Serial.print("pitch: ");
   //  Serial.println(pitch);
 
-    Serial.write(cmd);//Serial.write() to send byte without formatting
-    Serial.write(pitch);
-    Serial.write(velocity);
+  Serial.write(noteCmd);//Serial.write() to send byte without formatting
+  Serial.write(pitch);
+  Serial.write(noteVelocity);
+}
+
+void noteOff(char row, char column) {
+  int pitch = findPitch(row, column);
+  //  Serial.print("pitch: ");
+  //  Serial.println(pitch);
+
+  Serial.write(noteCmd);//Serial.write() to send byte without formatting
+  Serial.write(pitch);
+  Serial.write(0x00);
 }
 
 
 void printRowColumn(char row, char column) {
-//  Serial.print(row);
-//  Serial.println(column);
+  //  Serial.print(row);
+  //  Serial.println(column);
 }
